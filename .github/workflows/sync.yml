@@ -1,0 +1,55 @@
+name: Sync TeamSnap → Google Group
+
+on:
+  schedule:
+    # Runs every day at 06:00 UTC — adjust as needed
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no changes applied)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  sync:
+    name: Sync members
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write Google service account key
+        run: echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > service_account.json
+
+      - name: Run sync
+        env:
+          TEAMSNAP_TOKEN: ${{ secrets.TEAMSNAP_TOKEN }}
+          TEAMSNAP_ORG_ID: ${{ secrets.TEAMSNAP_ORG_ID }}
+          GOOGLE_GROUP_EMAIL: ${{ secrets.GOOGLE_GROUP_EMAIL }}
+          GOOGLE_ADMIN_EMAIL: ${{ secrets.GOOGLE_ADMIN_EMAIL }}
+          GOOGLE_SERVICE_ACCOUNT_FILE: service_account.json
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            python main.py --dry-run
+          else
+            python main.py
+          fi
+
+      - name: Clean up service account key
+        if: always()
+        run: rm -f service_account.json
