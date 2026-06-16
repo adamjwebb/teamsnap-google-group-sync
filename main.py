@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 from src.google_groups import GoogleGroupsClient
 from src.sync import sync
-from src.teamsnap import TeamsnapClient
+from src.teamsnap import make_client_from_env
 
 
 def _configure_logging(verbose: bool) -> None:
@@ -52,13 +52,12 @@ def main() -> None:
     _configure_logging(args.verbose)
     logger = logging.getLogger(__name__)
 
-    teamsnap_token = _require_env("TEAMSNAP_TOKEN")
     teamsnap_org_id = _require_env("TEAMSNAP_ORG_ID")
     google_group_email = _require_env("GOOGLE_GROUP_EMAIL")
     google_admin_email = _require_env("GOOGLE_ADMIN_EMAIL")
     google_sa_file = _require_env("GOOGLE_SERVICE_ACCOUNT_FILE")
 
-    teamsnap_client = TeamsnapClient(token=teamsnap_token)
+    teamsnap_client = make_client_from_env()
     google_client = GoogleGroupsClient(
         service_account_file=google_sa_file,
         impersonated_admin_email=google_admin_email,
