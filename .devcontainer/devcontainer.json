@@ -1,0 +1,31 @@
+{
+  "name": "TeamSnap Google Group Sync",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12-bullseye",
+  "postCreateCommand": "pip install -r requirements.txt",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "github.copilot"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.terminal.activateEnvironment": false
+      }
+    }
+  },
+  "remoteEnv": {
+    "TEAMSNAP_TOKEN": "${localEnv:TEAMSNAP_TOKEN}",
+    "TEAMSNAP_ORG_ID": "${localEnv:TEAMSNAP_ORG_ID}",
+    "GOOGLE_GROUP_EMAIL": "${localEnv:GOOGLE_GROUP_EMAIL}",
+    "GOOGLE_ADMIN_EMAIL": "${localEnv:GOOGLE_ADMIN_EMAIL}",
+    "GOOGLE_SERVICE_ACCOUNT_FILE": "${localEnv:GOOGLE_SERVICE_ACCOUNT_FILE}"
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder}/.env,target=/workspaces/teamsnap-google-group-sync/.env,type=bind,consistency=cached"
+  ],
+  "forwardPorts": [],
+  "features": {}
+}
