@@ -3,13 +3,62 @@
 from __future__ import annotations
 
 import logging
-from typing import Generator
+import os
 
 import requests
 
 logger = logging.getLogger(__name__)
 
 TEAMSNAP_API_BASE = "https://api.teamsnap.com/v3"
+TEAMSNAP_TOKEN_URL = "https://auth.teamsnap.com/oauth/token"
+
+
+def _refresh_access_token(client_id: str, client_secret: str, refresh_token: str) -> str:
+    """Exchange a refresh token for a new access token."""
+    response = requests.post(
+        TEAMSNAP_TOKEN_URL,
+        data={
+            "grant_type": "refresh_token",
+            "refresh_token": refresh_token,
+            "client_id": client_id,
+            "client_secret": client_secret,
+        },
+    )
+    response.raise_for_status()
+    token = response.json().get("access_token")
+    if not token:
+        raise RuntimeError("Token refresh response did not include an access_token.")
+    logger.debug("TeamSnap access token refreshed successfully.")
+    return token
+
+
+def make_client_from_env() -> "TeamsnapClient":
+    """
+    Build a TeamsnapClient from environment variables.
+
+    Supports two auth modes (checked in order):
+      1. Refresh token flow: TEAMSNAP_CLIENT_ID + TEAMSNAP_CLIENT_SECRET + TEAMSNAP_REFRESH_TOKEN
+      2. Static token:       TEAMSNAP_TOKEN
+    """
+    client_id = os.getenv("TEAMSNAP_CLIENT_ID")
+    client_secret = os.getenv("TEAMSNAP_CLIENT_SECRET")
+    refresh_token = os.getenv("TEAMSNAP_REFRESH_TOKEN")
+
+    if client_id and client_secret and refresh_token:
+        logger.info("Using TeamSnap refresh token flow.")
+        access_token = _refresh_access_token(client_id, client_secret, refresh_token)
+        return TeamsnapClient(token=access_token)
+
+    static_token = os.getenv("TEAMSNAP_TOKEN")
+    if static_token:
+        logger.info("Using static TeamSnap access token.")
+        return TeamsnapClient(token=static_token)
+
+    raise RuntimeError(
+        "No TeamSnap credentials found. Set either:\n"
+        "  TEAMSNAP_CLIENT_ID + TEAMSNAP_CLIENT_SECRET + TEAMSNAP_REFRESH_TOKEN\n"
+        "  or TEAMSNAP_TOKEN"
+    )
 
 
 class TeamsnapClient:
