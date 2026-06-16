@@ -38,7 +38,9 @@ jobs:
 
       - name: Run sync
         env:
-          TEAMSNAP_TOKEN: ${{ secrets.TEAMSNAP_TOKEN }}
+          TEAMSNAP_CLIENT_ID: ${{ secrets.TEAMSNAP_CLIENT_ID }}
+          TEAMSNAP_CLIENT_SECRET: ${{ secrets.TEAMSNAP_CLIENT_SECRET }}
+          TEAMSNAP_REFRESH_TOKEN: ${{ secrets.TEAMSNAP_REFRESH_TOKEN }}
           TEAMSNAP_ORG_ID: ${{ secrets.TEAMSNAP_ORG_ID }}
           GOOGLE_GROUP_EMAIL: ${{ secrets.GOOGLE_GROUP_EMAIL }}
           GOOGLE_ADMIN_EMAIL: ${{ secrets.GOOGLE_ADMIN_EMAIL }}
