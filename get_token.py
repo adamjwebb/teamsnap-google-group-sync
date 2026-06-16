@@ -108,13 +108,19 @@ def main():
     token_data = get_access_token(args.client_id, args.client_secret)
 
     access_token = token_data.get("access_token")
+    refresh_token = token_data.get("refresh_token")
     expires_in = token_data.get("expires_in", "unknown")
 
-    print("\nâœ… Success!")
-    print(f"   Access token : {access_token}")
-    print(f"   Expires in   : {expires_in} seconds")
-    print("\nAdd this to your .env file:")
-    print(f"   TEAMSNAP_TOKEN={access_token}")
+    print("\n✅ Success!")
+    print(f"   Access token  : {access_token}")
+    print(f"   Refresh token : {refresh_token}")
+    print(f"   Expires in    : {expires_in} seconds")
+    print("\nAdd these to your .env file:")
+    print(f"   TEAMSNAP_CLIENT_ID={args.client_id}")
+    print(f"   TEAMSNAP_CLIENT_SECRET={args.client_secret}")
+    print(f"   TEAMSNAP_REFRESH_TOKEN={refresh_token}")
+    print("\nFor GitHub Actions, add TEAMSNAP_CLIENT_ID, TEAMSNAP_CLIENT_SECRET,")
+    print("and TEAMSNAP_REFRESH_TOKEN as repository secrets.")
 
 
 if __name__ == "__main__":
